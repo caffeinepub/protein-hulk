@@ -32,6 +32,7 @@ interface Drink {
   carbs: number;
   fats: number;
   ingredients: Ingredient[];
+  tag?: string;
 }
 interface CartItem {
   drinkId: number;
@@ -66,402 +67,428 @@ interface CurrentUser {
 }
 
 // ─── Drink Data ───────────────────────────────────────────────────────────────
+const GOAL_RANGES: Record<
+  string,
+  {
+    cal: [number, number];
+    protein: [number, number];
+    fats: [number, number];
+    carbs: [number, number];
+  }
+> = {
+  Bulk: { cal: [300, 500], protein: [20, 35], fats: [5, 15], carbs: [30, 60] },
+  Cut: { cal: [150, 300], protein: [20, 35], fats: [5, 15], carbs: [10, 30] },
+  Debloat: { cal: [50, 200], protein: [5, 20], fats: [2, 10], carbs: [10, 40] },
+  "Anti-Inflammatory": {
+    cal: [150, 350],
+    protein: [15, 30],
+    fats: [5, 15],
+    carbs: [20, 50],
+  },
+  "Energy Boost": {
+    cal: [200, 450],
+    protein: [10, 25],
+    fats: [3, 10],
+    carbs: [40, 80],
+  },
+  "Meal Replacement": {
+    cal: [400, 700],
+    protein: [25, 45],
+    fats: [10, 25],
+    carbs: [40, 80],
+  },
+};
+
 const drinks: Drink[] = [
+  // ── Fruit / Refresh → Exotic Fruits ──────────────────────────────────────
   {
     id: 1,
     name: "Blue Lemonade",
-    kcal: 85,
-    price: 6.5,
-    category: "Protein",
+    kcal: 120,
+    price: 5.5,
+    category: "Exotic Fruits",
     image: "/assets/generated/drink-blue-lemonade.dim_400x400.png",
     description:
-      "Electric blue spirulina lemonade with fresh ginger and apple.",
-    protein: 0.5,
-    carbs: 20,
-    fats: 0.5,
+      "Electric blue spirulina lemonade with lemon slices and a refreshing citrus kick.",
+    protein: 2,
+    carbs: 28,
+    fats: 1,
+    tag: "Light 🌿",
     ingredients: [
-      { name: "Apple juice", qty: "360ml" },
+      { name: "Blue spirulina water", qty: "250ml" },
       { name: "Lemon juice", qty: "60ml" },
-      { name: "Water", qty: "60ml" },
-      { name: "Blue spirulina", qty: "0.1g" },
-      { name: "Ginger", qty: "10g" },
+      { name: "Agave syrup", qty: "20ml" },
+      { name: "Sparkling water", qty: "20ml" },
     ],
   },
   {
     id: 2,
-    name: "Colada",
-    kcal: 130,
-    price: 8.5,
+    name: "Coco Lime",
+    kcal: 140,
+    price: 6.0,
     category: "Exotic Fruits",
-    image: "/assets/generated/drink-colada.dim_400x400.png",
-    description: "Creamy tropical coconut and pineapple blend.",
-    protein: 1,
+    image: "/assets/generated/drink-coco-lime.dim_400x400.png",
+    description: "Creamy coconut water with zesty lime and a hint of mint.",
+    protein: 2,
     carbs: 30,
-    fats: 3,
+    fats: 2,
+    tag: "Light 🌿",
     ingredients: [
-      { name: "Coconut water", qty: "200ml" },
-      { name: "Pineapple juice", qty: "190ml" },
-      { name: "Ginger", qty: "10ml" },
-      { name: "Water", qty: "100ml" },
+      { name: "Coconut water", qty: "250ml" },
+      { name: "Lime juice", qty: "50ml" },
+      { name: "Mint leaves", qty: "5g" },
+      { name: "Agave syrup", qty: "15ml" },
     ],
   },
   {
     id: 3,
     name: "Berry Flow",
-    kcal: 95,
-    price: 5.5,
+    kcal: 200,
+    price: 6.5,
     category: "Exotic Fruits",
     image: "/assets/generated/drink-berry-flow.dim_400x400.png",
-    description: "Fresh berry and apple juice blend.",
-    protein: 0.5,
-    carbs: 22,
-    fats: 0.5,
+    description: "Purple-red mixed berry smoothie with deep fruity flavours.",
+    protein: 3,
+    carbs: 45,
+    fats: 2,
+    tag: "Light 🌿",
     ingredients: [
-      { name: "Apple juice", qty: "215ml" },
-      { name: "Water", qty: "160ml" },
+      { name: "Mixed berries", qty: "200g" },
+      { name: "Apple juice", qty: "100ml" },
+      { name: "Honey", qty: "20ml" },
+      { name: "Water", qty: "50ml" },
     ],
   },
   {
     id: 4,
-    name: "Pinacale",
-    kcal: 110,
+    name: "Tropical Splash",
+    kcal: 220,
     price: 7.0,
     category: "Exotic Fruits",
-    image: "/assets/generated/drink-pinacale.dim_400x400.png",
-    description: "Pineapple, apple, mint and ginger refresher.",
-    protein: 1,
-    carbs: 26,
-    fats: 0.5,
+    image: "/assets/generated/drink-tropical-splash.dim_400x400.png",
+    description: "Bright tropical blend of mango, passionfruit and pineapple.",
+    protein: 3,
+    carbs: 50,
+    fats: 2,
+    tag: "Light 🌿",
     ingredients: [
-      { name: "Apple juice", qty: "100ml" },
-      { name: "Lemon juice", qty: "30ml" },
-      { name: "Pineapple juice", qty: "150ml" },
-      { name: "Water", qty: "175ml" },
-      { name: "Ginger", qty: "10g" },
-      { name: "Mint", qty: "2g" },
+      { name: "Mango chunks", qty: "150g" },
+      { name: "Pineapple juice", qty: "120ml" },
+      { name: "Passionfruit", qty: "50g" },
+      { name: "Coconut water", qty: "80ml" },
     ],
   },
   {
     id: 5,
-    name: "Coco Lime",
-    kcal: 100,
-    price: 7.5,
+    name: "Watermelon Chill",
+    kcal: 110,
+    price: 5.5,
     category: "Exotic Fruits",
-    image: "/assets/generated/drink-coco-lime.dim_400x400.png",
-    description: "Coconut water and apple with zesty lime.",
-    protein: 1,
-    carbs: 22,
-    fats: 2.5,
+    image: "/assets/generated/drink-watermelon-chill.dim_400x400.png",
+    description: "Ice-cold watermelon juice, light and ultra-refreshing.",
+    protein: 2,
+    carbs: 25,
+    fats: 1,
+    tag: "Light 🌿",
     ingredients: [
-      { name: "Apple juice", qty: "180ml" },
-      { name: "Coconut water", qty: "250ml" },
-      { name: "Lemon juice", qty: "25ml" },
-      { name: "Water", qty: "40ml" },
-      { name: "Ginger", qty: "3g" },
+      { name: "Watermelon juice", qty: "300ml" },
+      { name: "Lime juice", qty: "30ml" },
+      { name: "Mint", qty: "5g" },
+      { name: "Water", qty: "15ml" },
     ],
   },
   {
     id: 6,
-    name: "Minty Melon",
-    kcal: 80,
-    price: 6.5,
+    name: "Pineapple Boost",
+    kcal: 180,
+    price: 6.0,
     category: "Exotic Fruits",
-    image: "/assets/generated/drink-minty-melon.dim_400x400.png",
-    description: "Refreshing watermelon and fresh mint blend.",
-    protein: 1,
-    carbs: 18,
-    fats: 0.5,
+    image: "/assets/generated/drink-pineapple-boost.dim_400x400.png",
+    description: "Golden pineapple boost with ginger and fresh mint.",
+    protein: 2,
+    carbs: 40,
+    fats: 1,
+    tag: "Light 🌿",
     ingredients: [
-      { name: "Watermelon juice", qty: "400ml" },
-      { name: "Lemon juice", qty: "25ml" },
-      { name: "Water", qty: "60ml" },
-      { name: "Mint", qty: "15g" },
+      { name: "Pineapple juice", qty: "250ml" },
+      { name: "Ginger", qty: "10g" },
+      { name: "Mint", qty: "5g" },
+      { name: "Lemon juice", qty: "20ml" },
     ],
   },
   {
     id: 7,
-    name: "Tropical Refresh",
-    kcal: 105,
-    price: 7.0,
+    name: "Citrus Glow",
+    kcal: 130,
+    price: 6.0,
     category: "Exotic Fruits",
-    image: "/assets/generated/drink-tropical-refresh.dim_400x400.png",
-    description: "Sunny pineapple and apple tropical blend.",
-    protein: 1,
-    carbs: 25,
-    fats: 0.5,
+    image: "/assets/generated/drink-citrus-glow.dim_400x400.png",
+    description: "Vibrant citrus blend of orange, grapefruit and lemon.",
+    protein: 2,
+    carbs: 30,
+    fats: 1,
+    tag: "Light 🌿",
     ingredients: [
-      { name: "Apple juice", qty: "175ml" },
-      { name: "Pineapple juice", qty: "175ml" },
-      { name: "Water", qty: "100ml" },
-      { name: "L-theanine", qty: "2g" },
+      { name: "Orange juice", qty: "150ml" },
+      { name: "Grapefruit juice", qty: "100ml" },
+      { name: "Lemon juice", qty: "40ml" },
+      { name: "Honey", qty: "10ml" },
     ],
   },
+  // ── Energy Drinks → Veggies ───────────────────────────────────────────────
   {
     id: 8,
-    name: "Cocao Dates",
-    kcal: 140,
+    name: "Mango Energy Blast",
+    kcal: 280,
     price: 8.0,
-    category: "Protein",
-    image: "/assets/generated/drink-cocao-dates.dim_400x400.png",
-    description: "Rich cacao and dates protein smoothie with ginger.",
-    protein: 2,
-    carbs: 32,
-    fats: 2,
+    category: "Veggies",
+    image: "/assets/generated/drink-mango-tropical.dim_400x400.png",
+    description:
+      "Bright orange mango energy drink packed with natural sugars and vitamins.",
+    protein: 5,
+    carbs: 65,
+    fats: 3,
+    tag: "Energy ⚡",
     ingredients: [
-      { name: "Apple juice", qty: "240ml" },
-      { name: "Water", qty: "150ml" },
-      { name: "Ginger", qty: "10g" },
+      { name: "Mango puree", qty: "200g" },
+      { name: "Orange juice", qty: "100ml" },
+      { name: "Banana", qty: "50g" },
+      { name: "Honey", qty: "20ml" },
     ],
   },
   {
     id: 9,
-    name: "Nut Berry Zest",
-    kcal: 115,
-    price: 7.5,
-    category: "Protein",
-    image: "/assets/generated/drink-nut-berry-zest.dim_400x400.png",
-    description: "Apple and blueberry protein zest drink.",
-    protein: 1.5,
-    carbs: 26,
-    fats: 1,
+    name: "Banana Fuel",
+    kcal: 300,
+    price: 8.5,
+    category: "Veggies",
+    image: "/assets/generated/drink-banana-fuel.dim_400x400.png",
+    description: "Thick creamy banana energy shake for sustained fuel.",
+    protein: 6,
+    carbs: 70,
+    fats: 3,
+    tag: "Energy ⚡",
     ingredients: [
-      { name: "Apple juice", qty: "250ml" },
-      { name: "Lemon juice", qty: "20ml" },
-      { name: "Water", qty: "150ml" },
-      { name: "Blueberry powder", qty: "5g" },
+      { name: "Banana", qty: "200g" },
+      { name: "Oat milk", qty: "150ml" },
+      { name: "Honey", qty: "20ml" },
+      { name: "Flaxseed", qty: "10g" },
     ],
   },
   {
     id: 10,
-    name: "Berry Beet Zing",
-    kcal: 90,
-    price: 7.0,
+    name: "Dates Power Drink",
+    kcal: 320,
+    price: 9.0,
     category: "Veggies",
-    image: "/assets/generated/drink-berry-beet-zing.dim_400x400.png",
-    description: "Vibrant beetroot and blueberry power drink.",
-    protein: 2,
-    carbs: 20,
-    fats: 0.5,
+    image: "/assets/generated/drink-dates-power.dim_400x400.png",
+    description:
+      "Rich caramel-brown date energy drink with deep natural sweetness.",
+    protein: 5,
+    carbs: 75,
+    fats: 2,
+    tag: "Energy ⚡",
     ingredients: [
-      { name: "Beetroot juice", qty: "285ml" },
-      { name: "Blueberry powder", qty: "5g" },
-      { name: "Ginger", qty: "10g" },
+      { name: "Medjool dates", qty: "100g" },
+      { name: "Almond milk", qty: "200ml" },
+      { name: "Cinnamon", qty: "2g" },
+      { name: "Vanilla extract", qty: "5ml" },
     ],
   },
   {
     id: 11,
-    name: "Dates Smoothie",
-    kcal: 220,
-    price: 8.5,
-    category: "Milk Shakes",
-    image: "/assets/generated/drink-dates-smoothie.dim_400x400.png",
-    description: "Creamy almond milk and dates indulgence.",
-    protein: 4,
-    carbs: 28,
-    fats: 8,
-    ingredients: [{ name: "Almond milk", qty: "450ml" }],
+    name: "Apple Oats Energizer",
+    kcal: 350,
+    price: 9.5,
+    category: "Veggies",
+    image: "/assets/generated/drink-apple-oats.dim_400x400.png",
+    description: "Hearty apple and oat energizer for all-day performance.",
+    protein: 8,
+    carbs: 65,
+    fats: 6,
+    tag: "Energy ⚡",
+    ingredients: [
+      { name: "Apple juice", qty: "150ml" },
+      { name: "Rolled oats", qty: "60g" },
+      { name: "Almond milk", qty: "150ml" },
+      { name: "Cinnamon", qty: "2g" },
+    ],
   },
+  // ── Protein Drinks → Protein ──────────────────────────────────────────────
   {
     id: 12,
-    name: "Beet Heat",
-    kcal: 85,
-    price: 6.5,
-    category: "Veggies",
-    image: "/assets/generated/drink-beet-heat.dim_400x400.png",
-    description: "Apple juice with a kick of cayenne and ginger.",
-    protein: 0.5,
-    carbs: 20,
-    fats: 0.5,
+    name: "Whey Banana Shake",
+    kcal: 380,
+    price: 11.0,
+    category: "Protein",
+    image: "/assets/generated/drink-whey-banana.dim_400x400.png",
+    description: "Thick banana whey protein shake with creamy texture.",
+    protein: 28,
+    carbs: 45,
+    fats: 8,
+    tag: "High Protein 💪",
     ingredients: [
-      { name: "Apple juice", qty: "350ml" },
-      { name: "Cayenne pepper", qty: "0.1g" },
-      { name: "Ginger", qty: "3g" },
+      { name: "Whey protein", qty: "35g" },
+      { name: "Banana", qty: "100g" },
+      { name: "Whole milk", qty: "200ml" },
+      { name: "Honey", qty: "15ml" },
     ],
   },
   {
     id: 13,
-    name: "Red Hot",
-    kcal: 95,
-    price: 7.0,
-    category: "Veggies",
-    image: "/assets/generated/drink-red-hot.dim_400x400.png",
-    description: "Fiery pineapple and cayenne metabolism booster.",
-    protein: 0.5,
-    carbs: 22,
-    fats: 0.5,
+    name: "Berry Protein Smoothie",
+    kcal: 320,
+    price: 10.5,
+    category: "Protein",
+    image: "/assets/generated/drink-berry-protein.dim_400x400.png",
+    description:
+      "Deep purple berry protein smoothie with mixed berries and whey.",
+    protein: 25,
+    carbs: 40,
+    fats: 6,
+    tag: "High Protein 💪",
     ingredients: [
-      { name: "Apple juice", qty: "150ml" },
-      { name: "Pineapple juice", qty: "75ml" },
-      { name: "Cayenne pepper", qty: "0.1g" },
-      { name: "L-theanine", qty: "1.5g" },
+      { name: "Whey protein", qty: "30g" },
+      { name: "Mixed berries", qty: "150g" },
+      { name: "Almond milk", qty: "150ml" },
+      { name: "Chia seeds", qty: "10g" },
     ],
   },
   {
     id: 14,
-    name: "Hot Green",
-    kcal: 100,
-    price: 7.5,
-    category: "Veggies",
-    image: "/assets/generated/drink-hot-green.dim_400x400.png",
-    description: "Green detox with pomegranate and cayenne heat.",
-    protein: 1,
-    carbs: 24,
-    fats: 0.5,
+    name: "Chocolate Protein Shake",
+    kcal: 400,
+    price: 11.5,
+    category: "Protein",
+    image: "/assets/generated/drink-chocolate-protein.dim_400x400.png",
+    description: "Rich dark chocolate protein shake with cocoa and whey.",
+    protein: 30,
+    carbs: 35,
+    fats: 10,
+    tag: "High Protein 💪",
     ingredients: [
-      { name: "Apple juice", qty: "350ml" },
-      { name: "Pomegranate juice", qty: "146ml" },
-      { name: "Cayenne pepper", qty: "0.1g" },
-      { name: "Ginger", qty: "3g" },
+      { name: "Chocolate whey protein", qty: "35g" },
+      { name: "Cocoa powder", qty: "15g" },
+      { name: "Whole milk", qty: "200ml" },
+      { name: "Peanut butter", qty: "15g" },
     ],
   },
   {
     id: 15,
-    name: "Red Glory",
-    kcal: 70,
-    price: 6.0,
-    category: "Exotic Fruits",
-    image: "/assets/generated/drink-red-glory.dim_400x400.png",
-    description: "Light watermelon water with a ginger kick.",
-    protein: 0.5,
-    carbs: 16,
-    fats: 0.5,
+    name: "Vanilla Almond Protein",
+    kcal: 350,
+    price: 11.0,
+    category: "Protein",
+    image: "/assets/generated/drink-vanilla-almond.dim_400x400.png",
+    description:
+      "Creamy vanilla whey shake with almond pieces and smooth texture.",
+    protein: 27,
+    carbs: 30,
+    fats: 9,
+    tag: "High Protein 💪",
     ingredients: [
-      { name: "Watermelon juice", qty: "100ml" },
-      { name: "Water", qty: "175ml" },
-      { name: "Ginger", qty: "10g" },
+      { name: "Vanilla whey protein", qty: "35g" },
+      { name: "Almond milk", qty: "200ml" },
+      { name: "Sliced almonds", qty: "20g" },
+      { name: "Vanilla bean", qty: "2g" },
     ],
   },
   {
     id: 16,
-    name: "Flow Juice",
-    kcal: 100,
-    price: 6.5,
-    category: "Exotic Fruits",
-    image: "/assets/generated/drink-flow-juice.dim_400x400.png",
-    description: "Apple and pineapple flow with ginger.",
-    protein: 0.5,
-    carbs: 24,
-    fats: 0.5,
+    name: "Green Protein Detox",
+    kcal: 280,
+    price: 10.5,
+    category: "Protein",
+    image: "/assets/generated/drink-green-protein.dim_400x400.png",
+    description: "Vibrant green spinach and protein detox smoothie.",
+    protein: 22,
+    carbs: 25,
+    fats: 8,
+    tag: "High Protein 💪",
     ingredients: [
-      { name: "Apple juice", qty: "175ml" },
-      { name: "Pineapple juice", qty: "100ml" },
-      { name: "Ginger", qty: "10g" },
+      { name: "Pea protein", qty: "30g" },
+      { name: "Spinach", qty: "60g" },
+      { name: "Cucumber", qty: "80g" },
+      { name: "Almond milk", qty: "150ml" },
+    ],
+  },
+  // ── Meal / Heavy Drinks → Milk Shakes ────────────────────────────────────
+  {
+    id: 17,
+    name: "Peanut Butter Bulk Shake",
+    kcal: 450,
+    price: 13.5,
+    category: "Milk Shakes",
+    image: "/assets/generated/drink-peanut-butter.dim_400x400.png",
+    description: "Extra-thick peanut butter protein shake for serious bulking.",
+    protein: 30,
+    carbs: 35,
+    fats: 15,
+    tag: "Meal 🍽️",
+    ingredients: [
+      { name: "Peanut butter", qty: "50g" },
+      { name: "Whey protein", qty: "35g" },
+      { name: "Whole milk", qty: "200ml" },
+      { name: "Banana", qty: "50g" },
     ],
   },
   {
-    id: 17,
-    name: "Choc Cherry Boost",
-    kcal: 160,
-    price: 8.0,
-    category: "Protein",
-    image: "/assets/generated/drink-choc-cherry-boost.dim_400x400.png",
-    description: "Chocolate cherry protein power boost.",
-    protein: 3,
-    carbs: 36,
-    fats: 1.5,
-    ingredients: [{ name: "Apple juice", qty: "475ml" }],
-  },
-  {
     id: 18,
-    name: "Root Refresher",
-    kcal: 105,
-    price: 6.5,
-    category: "Exotic Fruits",
-    image: "/assets/generated/drink-root-refresher.dim_400x400.png",
-    description: "Pineapple and apple ginger root refresher.",
-    protein: 0.5,
-    carbs: 25,
-    fats: 0.5,
+    name: "Oats Muscle Builder",
+    kcal: 500,
+    price: 14.0,
+    category: "Milk Shakes",
+    image: "/assets/generated/drink-oats-muscle.dim_400x400.png",
+    description: "Dense oat and protein muscle shake with hearty texture.",
+    protein: 32,
+    carbs: 60,
+    fats: 12,
+    tag: "Meal 🍽️",
     ingredients: [
-      { name: "Apple juice", qty: "120ml" },
-      { name: "Pineapple juice", qty: "120ml" },
-      { name: "Water", qty: "100ml" },
-      { name: "Ginger", qty: "10g" },
+      { name: "Rolled oats", qty: "80g" },
+      { name: "Whey protein", qty: "35g" },
+      { name: "Whole milk", qty: "200ml" },
+      { name: "Honey", qty: "20ml" },
     ],
   },
   {
     id: 19,
-    name: "Sunset Refresh",
-    kcal: 110,
-    price: 7.5,
-    category: "Exotic Fruits",
-    image: "/assets/generated/drink-sunset-refresh.dim_400x400.png",
-    description: "Pomegranate and apple sunset blend with psyllium.",
-    protein: 1.5,
-    carbs: 25,
-    fats: 1,
+    name: "Mass Gainer Supreme",
+    kcal: 600,
+    price: 15.5,
+    category: "Milk Shakes",
+    image: "/assets/generated/drink-mass-gainer.dim_400x400.png",
+    description:
+      "Ultimate mass gainer — chocolate and vanilla swirled powerhouse shake.",
+    protein: 40,
+    carbs: 70,
+    fats: 18,
+    tag: "Meal 🍽️",
     ingredients: [
-      { name: "Apple juice", qty: "275ml" },
-      { name: "Lemon juice", qty: "25ml" },
-      { name: "Pomegranate juice", qty: "75ml" },
-      { name: "Water", qty: "100ml" },
-      { name: "L-theanine", qty: "15g" },
-      { name: "Psyllium powder", qty: "12g" },
+      { name: "Mass gainer protein", qty: "80g" },
+      { name: "Whole milk", qty: "200ml" },
+      { name: "Cocoa powder", qty: "10g" },
+      { name: "Oats", qty: "40g" },
     ],
   },
   {
     id: 20,
-    name: "Kiwi Serenity",
-    kcal: 60,
-    price: 8.0,
-    category: "Protein",
-    image: "/assets/generated/drink-kiwi-serenity.dim_400x400.png",
-    description: "Calming chamomile and pomegranate serenity blend.",
-    protein: 0.5,
-    carbs: 14,
-    fats: 0,
-    ingredients: [
-      { name: "Pomegranate juice", qty: "100ml" },
-      { name: "Chamomile tea", qty: "300ml" },
-      { name: "L-theanine", qty: "0.01g" },
-    ],
-  },
-  {
-    id: 21,
-    name: "Cherry Fusion",
-    kcal: 55,
-    price: 8.0,
-    category: "Protein",
-    image: "/assets/generated/drink-cherry-fusion.dim_400x400.png",
-    description: "Soothing chamomile and cherry fusion tea.",
-    protein: 0,
-    carbs: 12,
-    fats: 0,
-    ingredients: [
-      { name: "Chamomile tea", qty: "400ml" },
-      { name: "L-theanine", qty: "0.01g" },
-    ],
-  },
-  {
-    id: 22,
-    name: "Zesty Cooler",
-    kcal: 15,
-    price: 5.5,
-    category: "Veggies",
-    image: "/assets/generated/drink-zesty-cooler.dim_400x400.png",
-    description: "Ultra-clean ginger infused detox water.",
-    protein: 0,
-    carbs: 3,
-    fats: 0,
-    ingredients: [
-      { name: "Water", qty: "50ml" },
-      { name: "Ginger", qty: "3g" },
-    ],
-  },
-  {
-    id: 23,
-    name: "Golden Milk",
-    kcal: 180,
-    price: 8.5,
+    name: "Complete Meal Shake",
+    kcal: 550,
+    price: 15.0,
     category: "Milk Shakes",
-    image: "/assets/generated/drink-golden-milk.dim_400x400.png",
-    description: "Luxurious turmeric golden milk latte.",
-    protein: 3,
-    carbs: 18,
-    fats: 9,
+    image: "/assets/generated/drink-complete-meal.dim_400x400.png",
+    description:
+      "Nutritionally complete meal replacement shake with oats, fruits and protein.",
+    protein: 35,
+    carbs: 50,
+    fats: 15,
+    tag: "Meal 🍽️",
     ingredients: [
-      { name: "Almond milk", qty: "300ml" },
-      { name: "Turmeric", qty: "20g" },
+      { name: "Whey protein", qty: "35g" },
+      { name: "Oats", qty: "60g" },
+      { name: "Banana", qty: "80g" },
+      { name: "Whole milk", qty: "200ml" },
     ],
   },
 ];
@@ -1614,6 +1641,11 @@ function MenuScreen({
                     ${drink.price.toFixed(2)}
                   </span>
                 </div>
+                {drink.tag && (
+                  <span className="inline-block mt-1 text-[8px] bg-green-50 text-[#3F8F57] border border-green-200 rounded-full px-1.5 py-0.5 leading-none">
+                    {drink.tag}
+                  </span>
+                )}
               </div>
             </motion.button>
           ))}
@@ -1805,7 +1837,9 @@ function TargetScreen({
   setDietType: (v: "vegan" | "non-vegan") => void;
   onNavigate: (s: Screen) => void;
 }) {
-  const showHint = targetCalories < 70 || targetCalories > 160;
+  const range = GOAL_RANGES[selectedGoal] ?? GOAL_RANGES.Bulk;
+  const showHint =
+    targetCalories < range.cal[0] || targetCalories > range.cal[1];
 
   return (
     <div
@@ -1841,8 +1875,8 @@ function TargetScreen({
           </div>
           <input
             type="range"
-            min={55}
-            max={220}
+            min={range.cal[0]}
+            max={range.cal[1]}
             step={5}
             value={targetCalories}
             onChange={(e) => setTargetCalories(Number(e.target.value))}
@@ -1850,9 +1884,9 @@ function TargetScreen({
             data-ocid="target.calories_input"
           />
           <div className="flex justify-between text-[9px] text-gray-400 mt-1">
-            <span>55 kcal</span>
-            <span className="italic">Based on drinks available in menu</span>
-            <span>220 kcal</span>
+            <span>{range.cal[0]} kcal</span>
+            <span className="italic">Range based on your selected goal</span>
+            <span>{range.cal[1]} kcal</span>
           </div>
         </div>
 
@@ -1864,24 +1898,24 @@ function TargetScreen({
               label: "Protein",
               val: targetProtein,
               set: setTargetProtein,
-              min: 0,
-              max: 10,
+              min: range.protein[0],
+              max: range.protein[1],
               unit: "g",
             },
             {
               label: "Carbs",
               val: targetCarbs,
               set: setTargetCarbs,
-              min: 0,
-              max: 36,
+              min: range.carbs[0],
+              max: range.carbs[1],
               unit: "g",
             },
             {
               label: "Healthy Fats",
               val: targetFats,
               set: setTargetFats,
-              min: 0,
-              max: 9,
+              min: range.fats[0],
+              max: range.fats[1],
               unit: "g",
             },
           ].map((m) => (
@@ -1962,6 +1996,7 @@ function MatchingScreen({
   targetProtein,
   targetCarbs,
   targetFats,
+  selectedGoal,
   cart,
   onAddToCart,
   onNavigate,
@@ -1973,6 +2008,7 @@ function MatchingScreen({
   targetProtein: number;
   targetCarbs: number;
   targetFats: number;
+  selectedGoal: string;
   cart: CartItem[];
   onAddToCart: (drinkId: number, sugarPct: number, qty: number) => void;
   onNavigate: (s: Screen) => void;
@@ -1983,17 +2019,38 @@ function MatchingScreen({
   const [selectedDrink, setSelectedDrink] = useState<Drink | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
 
-  const ranked = [...drinks].sort(
-    (a, b) =>
-      Math.abs(a.kcal - targetCalories) - Math.abs(b.kcal - targetCalories),
+  const range = GOAL_RANGES[selectedGoal] ?? GOAL_RANGES.Bulk;
+
+  const filtered = drinks.filter(
+    (d) =>
+      d.kcal >= range.cal[0] &&
+      d.kcal <= range.cal[1] &&
+      d.protein >= range.protein[0] &&
+      d.protein <= range.protein[1] &&
+      d.fats >= range.fats[0] &&
+      d.fats <= range.fats[1] &&
+      d.carbs >= range.carbs[0] &&
+      d.carbs <= range.carbs[1],
   );
 
-  const getMatchLabel = (idx: number) => {
-    if (idx === 0)
-      return { label: "Closest Match", color: "bg-green-100 text-green-700" };
-    if (idx === 1)
-      return { label: "Near Your Target", color: "bg-blue-100 text-blue-700" };
-    return { label: "Slightly Above", color: "bg-amber-100 text-amber-700" };
+  const score = (d: Drink) =>
+    Math.abs(d.kcal - targetCalories) / 100 +
+    Math.abs(d.protein - targetProtein) +
+    Math.abs(d.carbs - targetCarbs) +
+    Math.abs(d.fats - targetFats);
+
+  const ranked = [...filtered].sort((a, b) => score(a) - score(b));
+
+  const getMatchLabel = (drink: Drink) => {
+    const s = score(drink);
+    const calDiff = drink.kcal - targetCalories;
+    if (s <= 5)
+      return { label: "Exact Match", color: "bg-green-100 text-green-700" };
+    if (s <= 15)
+      return { label: "Close Match", color: "bg-blue-100 text-blue-700" };
+    if (calDiff > 0)
+      return { label: "Above Match", color: "bg-amber-100 text-amber-700" };
+    return { label: "Below Match", color: "bg-purple-100 text-purple-700" };
   };
 
   const getKcalDiff = (drink: Drink) => {
@@ -2045,14 +2102,14 @@ function MatchingScreen({
             ))}
           </div>
           <p className="text-[9px] text-gray-400 italic text-center">
-            Showing closest matches from menu
+            Showing drinks within your selected goal range
           </p>
         </div>
 
         {/* Ranked list */}
         <div className="space-y-2">
           {ranked.map((drink, idx) => {
-            const { label, color } = getMatchLabel(idx);
+            const { label, color } = getMatchLabel(drink);
             const diff = getKcalDiff(drink);
             return (
               <motion.button
@@ -2875,11 +2932,19 @@ export default function App() {
     { fullName: "Demo User", email: "demo@protein.com", password: "1234" },
   ]);
   const [selectedGoal, setSelectedGoal] = useState("Bulk");
-  const [targetCalories, setTargetCalories] = useState(120);
-  const [targetProtein, setTargetProtein] = useState(2);
-  const [targetCarbs, setTargetCarbs] = useState(25);
-  const [targetFats, setTargetFats] = useState(1);
+  const [targetCalories, setTargetCalories] = useState(400);
+  const [targetProtein, setTargetProtein] = useState(27);
+  const [targetCarbs, setTargetCarbs] = useState(45);
+  const [targetFats, setTargetFats] = useState(10);
   const [dietType, setDietType] = useState<"vegan" | "non-vegan">("non-vegan");
+
+  useEffect(() => {
+    const r = GOAL_RANGES[selectedGoal] ?? GOAL_RANGES.Bulk;
+    setTargetCalories(Math.round((r.cal[0] + r.cal[1]) / 2));
+    setTargetProtein(Math.round((r.protein[0] + r.protein[1]) / 2));
+    setTargetCarbs(Math.round((r.carbs[0] + r.carbs[1]) / 2));
+    setTargetFats(Math.round((r.fats[0] + r.fats[1]) / 2));
+  }, [selectedGoal]);
 
   // Per-phone screen state (each phone is independently navigable)
   const [phoneScreens, setPhoneScreens] = useState<Screen[]>([
@@ -3021,6 +3086,7 @@ export default function App() {
             targetProtein={targetProtein}
             targetCarbs={targetCarbs}
             targetFats={targetFats}
+            selectedGoal={selectedGoal}
             cart={cart}
             onAddToCart={addToCart}
             onNavigate={navigate}
